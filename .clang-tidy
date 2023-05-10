@@ -1,4 +1,6 @@
 Checks: "
   google-*,
-  modernize-*
+  modernize-*,
+  -modernize-use-default-member-init,
+  -modernize-avoid-c-arrays
   "

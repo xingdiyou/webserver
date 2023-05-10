@@ -31,9 +31,11 @@ class ThreadPool {
   void stop();
 
  private:
+  void workerThread();
+
+  bool running_;
   std::vector<std::thread> threads_;
   std::deque<std::function<void()>> tasks_;
   std::mutex mutex_;
   std::condition_variable cv_;
-  bool running_;
 };

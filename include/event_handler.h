@@ -2,13 +2,11 @@
 
 class EventHandler {
  public:
-  virtual ~EventHandler();
+  virtual ~EventHandler() = default;
 
-  virtual void handleRead() = 0;
+  virtual auto handleRead() -> int;
 
-  virtual void handleWrite() = 0;
+  virtual auto handleWrite() -> int;
 
   virtual void handleClose() = 0;
-
-  virtual void handleError() = 0;
 };

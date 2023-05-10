@@ -1,18 +1,18 @@
 #pragma once
 
-#include <netinet/in.h>
+#include "event_handler.h"
+#include "reactor.h"
+#include "socket.h"
 
-#include <string>
-
-class Acceptor {
+class Acceptor : public EventHandler {
  public:
-  explicit Acceptor(int port);
+  Acceptor(Socket listen_socket, Reactor &reactor);
 
-  ~Acceptor();
+  auto handleRead() -> int override;
 
-  auto accept(sockaddr_in &client_addr) -> int;
+  void handleClose() override;
 
  private:
-  int port_;
-  int listen_fd_;
+  Socket listen_socket_;
+  Reactor &reactor_;
 };

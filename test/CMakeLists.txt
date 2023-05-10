@@ -1,19 +1,22 @@
-include(GoogleTest)
+enable_testing()
 
-add_executable(thread_pool_test thread_pool_test.cpp)
+set(test_libraries gtest gtest_main webserver)
 
-target_link_libraries(thread_pool_test gtest gtest_main webserver)
+function(add_webserver_test test_name test_source)
+    add_executable(${test_name} ${test_source})
+    target_link_libraries(${test_name} ${test_libraries})
+    add_test(
+        NAME ${test_name}
+        COMMAND valgrind --tool=memcheck ./${test_name}
+    )
+endfunction()
 
-gtest_discover_tests(thread_pool_test)
+set(test_sources
+    thread_pool_test.cpp
+    http_request_parser_test.cpp
+)
 
-add_executable(acceptor_test acceptor_test.cpp)
-
-target_link_libraries(acceptor_test gtest gtest_main webserver)
-
-gtest_discover_tests(acceptor_test)
-
-add_executable(circular_buffer_test circular_buffer_test.cpp)
-
-target_link_libraries(circular_buffer_test gtest gtest_main webserver)
-
-gtest_discover_tests(circular_buffer_test)
+foreach(test_source ${test_sources})
+    get_filename_component(test_name ${test_source} NAME_WE)
+    add_webserver_test(${test_name} ${test_source})
+endforeach()

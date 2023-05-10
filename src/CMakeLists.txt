@@ -2,11 +2,16 @@ add_library(webserver STATIC)
 
 target_sources(webserver
     PRIVATE
-    thread_pool.cpp
+    event_handler.cpp
+    http_server.cpp
     acceptor.cpp
-    dispatcher.cpp
-    http_request_handler.cpp
-    circular_buffer.cpp
+    reactor.cpp
+    thread_pool.cpp
+    socket.cpp
+    http_connection.cpp
+    http_request.cpp
+    http_response.cpp
+    http_request_parser.cpp
 )
 
 target_include_directories(webserver
@@ -15,5 +20,7 @@ target_include_directories(webserver
 )
 
 target_link_libraries(webserver
-    PUBLIC
+    PRIVATE
+    glog::glog
+    fmt::fmt
 )
