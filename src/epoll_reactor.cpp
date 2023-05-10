@@ -1,19 +1,34 @@
-#include "reactor.h"
+#include "epoll_reactor.h"
 
 #include <sys/epoll.h>
 
+#include "fmt/core.h"
 #include "glog/logging.h"
 
-Reactor::Reactor() : epoll_fd_(epoll_create1(0)) {
+EpollReactor::EpollReactor() : epoll_fd_(epoll_create1(0)) {
   if (epoll_fd_ == -1) {
     throw std::runtime_error(
         fmt::format("Failed to create epoll instance: {}", strerror(errno)));
   }
 }
 
-Reactor::~Reactor() { close(epoll_fd_); }
+EpollReactor::~EpollReactor() { close(epoll_fd_); }
 
-void Reactor::removeHandler(int fd) {
+void EpollReactor::registerHandler(int fd, int events,
+                                   std::unique_ptr<EventHandler> handler) {
+  VLOG(4) << "register handler #" << fd;
+
+  epoll_event event;
+  event.data.fd = fd;
+  event.events = events;
+  if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &event) == -1) {
+    throw std::runtime_error(
+        fmt::format("Failed to add event to epoll: {}", strerror(errno)));
+  }
+  handlers_[fd] = std::move(handler);
+};
+
+void EpollReactor::removeHandler(int fd) {
   VLOG(4) << "remove handler #" << fd;
 
   auto it = handlers_.find(fd);
@@ -31,7 +46,7 @@ void Reactor::removeHandler(int fd) {
   handlers_.erase(it);
 }
 
-void Reactor::loop() {
+void EpollReactor::loop() {
   while (true) {
     constexpr int kMaxEvents = 1024;
     epoll_event events[kMaxEvents];

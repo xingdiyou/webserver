@@ -4,6 +4,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <memory>
 
 #include "glog/logging.h"
 #include "http_connection.h"
@@ -22,8 +23,9 @@ auto Acceptor::handleRead() -> int {
       LOG(ERROR) << "Failed to accept connection: " << strerror(errno);
       return -1;
     }
-    reactor_.registerHandler<HttpConnection>(client_fd, EPOLLIN | EPOLLET,
-                                             Socket(client_fd), reactor_);
+    reactor_.registerHandler(
+        client_fd, EPOLLIN | EPOLLET,
+        std::make_unique<HttpConnection>(Socket(client_fd), reactor_));
   }
   return 0;
 }
