@@ -6,7 +6,7 @@
 
 class Reactor {
  public:
-  virtual ~Reactor() = default;
+  virtual ~Reactor();
 
   virtual void registerHandler(int fd, int events,
                                std::unique_ptr<EventHandler> handler) = 0;
